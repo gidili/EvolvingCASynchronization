@@ -7,4 +7,3 @@ This is Matlab code used for evolving Cellular Automata for the Majority Classif
 - Common: a bunch of helper functions and classes, including a function to generate initial population for the GA
 - MajorityClassification: fitness function for majority classification + ad-hoc code to visualize/evaluate rules
 - GlobalSynchronization: same as majority classification but for the global synchronization task
-- DiscoveryOfOscillatingClassifier: an old version of majority classification code that shows interesting results ...
