@@ -8,7 +8,7 @@ radius = 3;
 % rule size
 ruleSize= radius*2 +1;
 % number of time steps
-max=150;
+max=50;
 
 a=zeros(1,latticeSize);
 newa=zeros(1,latticeSize);
@@ -98,19 +98,33 @@ while (g<max),
     
     % check if correctly synced or stable configuration and break if so
     sumCurrentState = sum(newa);
-    if(sumCurrentState == 149 && sumInitialState > latticeSize/2)
-        % some output
-        if(output)
-            disp(['correctly synced to all black (1) in ' num2str(g) ' time steps'])
+    if(sumCurrentState == 149)
+        if(sumInitialState > latticeSize/2)
+            % some output
+            if(output)
+                disp(['correctly synced to all black (1) in ' num2str(g) ' time steps'])
+            end
+            break;
+        else
+            disp(['wrongly synced to all black (1) in ' num2str(g) ' time steps'])
+            break;
         end
+    end
+    
+    if (sumCurrentState == 0)
+        if(sumInitialState < latticeSize/2)
+            % some output
+            if(output)
+                disp(['correctly synced to all white (1) in ' num2str(g) ' time steps'])
+            end
         break;
-    elseif (sumCurrentState == 0 && sumInitialState < latticeSize/2)
-        % some output
-        if(output)
-            disp(['correctly synced to all white (0) in ' num2str(g) ' time steps'])
+        else
+            disp(['wrongly synced to all white (1) in ' num2str(g) ' time steps'])
+            break;
         end
-        break;
-    elseif(GRID(g,:) == GRID(g-1,:))
+    end
+    
+    if(GRID(g,:) == GRID(g-1,:))
         % wrong stable config reached do nothing in this case - just break
         % some output first
         if(output)

@@ -6,7 +6,7 @@ tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %CONSTANTS DECLARATION
 % # of runs for average
-runs = 10;
+runs = 1;
 %CONSTANTS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -16,7 +16,7 @@ rule = [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 fitSum = 0;
 i = 0;
 while(i<runs)
-    fitness = globalSynchronizationFitness(rule, 1);
+    fitness = globalSynchronizationFitness_OuterLoop(rule, 1);
     disp(['fitness ' num2str(i) ' --> ' num2str(fitness)])
     %increase counters
     fitSum = fitSum + fitness;

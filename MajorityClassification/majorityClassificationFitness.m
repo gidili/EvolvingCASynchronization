@@ -161,18 +161,6 @@ while(icIterator <= ICsNo)
         disp(['iteration complete: ' num2str(icIterator)])
     end
     
-    %check if it converged a minimum no of times after half ICs
-    %by good enough we mean at least 5% converged in the first half
-    if(icIterator > ICsNo/2 && correctlySynced < ICsNo*5/100)
-        % assume it would converge the same number of times the next half
-        correctlySynced = correctlySynced*2;
-        % some output
-        if(output)
-            disp(['Interrupted because not promising after ' num2str(icIterator) ' IC evaluations'])
-        end
-        break;
-    end
-    
     icIterator = icIterator +1;
 end
 

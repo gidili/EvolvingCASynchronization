@@ -5,7 +5,7 @@ tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %CONSTANTS DECLARATION
 % # of runs for average
-runs = 10;
+runs = 1;
 %CONSTANTS DECLARATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -17,7 +17,7 @@ rule = [1 1 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 1 0 0 0 0 0 0 0 0 0 1 1 1 1 
 fitSum = 0;
 i = 0;
 while(i<runs)
-    fitness = majorityClassificationFitness(rule, 1);
+    fitness = majorityClassificationFitness_OuterLoop(rule, 1);
     disp(['fitness ' num2str(i) ' --> ' num2str(fitness)])
     %increase counters
     fitSum = fitSum + fitness;

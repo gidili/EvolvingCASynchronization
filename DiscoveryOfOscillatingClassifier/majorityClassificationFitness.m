@@ -122,31 +122,41 @@ while(icIterator <= ICsNo)
         
         % check if correctly synced or stable configuration and break if so
         sumCurrentState = sum(newa);
-        if(sumCurrentState == 149 && sumInitialState > latticeSize/2)
-            % increment correctly synced and totalsteps counter
-            correctlySynced = correctlySynced +1;
-            totalsteps = totalsteps + g;
-            
-            % some output
-            if(output)
-                disp(['correctly synced to all black (1) in ' num2str(g) ' time steps'])
+        if(sumCurrentState == 149)
+            if(sumInitialState > latticeSize/2)
+                % some output
+                if(output)
+                    disp(['correctly synced to all black (1) in ' num2str(g) ' time steps'])
+                end
+                
+                correctlySynced = correctlySynced +1;
+                
+                break;
+            else
+                disp(['wrongly synced to all black (1) in ' num2str(g) ' time steps'])
+                break;
             end
-            break;
-        elseif (sumCurrentState == 0 && sumInitialState < latticeSize/2)
-            % increment correctly synced and totalsteps counter
-            correctlySynced = correctlySynced +1;
-            totalsteps = totalsteps + g;
-            
-            % some output
-            if(output)
-                disp(['correctly synced to all white (0) in ' num2str(g) ' time steps'])
+        end
+    
+        if (sumCurrentState == 0)
+            if(sumInitialState < latticeSize/2)
+                % some output
+                if(output)
+                    disp(['correctly synced to all white (1) in ' num2str(g) ' time steps'])
+                end
+                
+                correctlySynced = correctlySynced +1;
+                
+                break;
+            else
+                disp(['wrongly synced to all white (1) in ' num2str(g) ' time steps'])
+                break;
             end
-            break;
-        elseif(GRID(g,:) == GRID(g-1,:))
-            % wrong stable config reached do nothing in this case -
-            % just increase totalSteps counter and break
-            totalsteps = totalsteps + g;
-            % some output first)
+        end
+    
+        if(GRID(g,:) == GRID(g-1,:))
+            % wrong stable config reached do nothing in this case - just break
+            % some output first
             if(output)
                 disp(['wrong stable config reached in ' num2str(g) ' time steps'])
             end

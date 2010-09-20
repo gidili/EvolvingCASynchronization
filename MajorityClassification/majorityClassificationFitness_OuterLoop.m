@@ -1,8 +1,8 @@
-function [ fitness ] = globalSynchronizationFitness( rule , varargin )
+function [ fitness ] = majorityClassificationFitness( rule , varargin )
 %CALCULATEFITNESS
-% this function calculates performance fitness of given rule for global synch
-% returns a scalar calculated as successfulRuns/TotalRuns.
-% Takes a 128 bits vector representing a CA rule for a neighborhood of radius 3.
+% this function calculates performance fitness of given rule - returns a
+% scalar calculated as successfulRuns/TotalRuns. Takes a 128 bits vector
+% representing a CA rule for a neighborhood of radius 3.
 % Note: A lot of (if not all) the costants declared here could be passed down as
 % parameters - but since this is going to be used as the fitness function
 % in a Genetic Algorithm very specific to the problem at hand to be called
@@ -75,19 +75,24 @@ while(icIterator <= ICsNo)
     % output
     if(output)
         disp(['iteration: ' num2str(icIterator)])
-        disp(['sum = ' num2str(sumInitialState)])
+        if(sumInitialState > latticeSize/2)
+            disp(['should converge to black - sum = ' num2str(sumInitialState)])
+        else
+            disp(['should converge to white - sum = ' num2str(sumInitialState)])
+        end
     end
     
     % assign initial configuration to the grid
     GRID(1,:)=a;
-    % initialize the grid except 1st row (initial configuration)
+    % in theory no need to initialize the grid except 1st row (saves cpu time)
     for i=2:max,
-        GRID(i,:)=zeros(1,latticeSize);
+      GRID(i,:)=zeros(1,latticeSize);
     end
     
-    % this is the inner loop (where the CA processing happens)
+    % this is the main loop (where the CA processing happens)
     g=1;
     while (g<max),
+        
         %run the chosen rule foreach cell for a given time step g
         %boundary cells are being ignored in this example
         for i=1:latticeSize,
@@ -108,43 +113,36 @@ while(icIterator <= ICsNo)
         GRID(g,:)=a;
         
         % check if correctly synced or stable configuration and break if so
-        sumCurrentState = sum(GRID(g,:));
-        sumPreviousState = sum(GRID(g-1,:));
-        isStableConfig = isequal(GRID(g,:), GRID(g-1,:));
-        oscillating = 0;
-        
-        if(isStableConfig)
-            % stable config reached, do nothing in this case
-            % just increase totalSteps counter and break current iteration
-            totalsteps = totalsteps + g;
-            % some output first)
-            if(output)
-                disp(['not good - stable config reached in ' num2str(g) ' time steps'])
-            end
-            break;
-        elseif(sumCurrentState == latticeSize && sumPreviousState == 0)
-            % all black and previously all white
-            % if 2 steps before is all black again we are oscillating
-            if(g>=3 && sum(GRID(g-2,:)) == latticeSize)
-                oscillating = 1;
-            end
-        elseif (sumCurrentState == 0 && sumPreviousState == latticeSize)
-            % all white and previously all black
-            % if 2 steps before is all white again we are oscillating
-            if(g>=3 && sum(GRID(g-2,:)) == 0)
-                oscillating = 1;
-            end
-        end
-        
-        if(oscillating)
+        sumCurrentState = sum(newa);
+        stableConfig = isequal(GRID(g,:), GRID(g-1,:));
+        if(stableConfig && sumCurrentState == 149 && sumInitialState > latticeSize/2)
             % increment correctly synced and totalsteps counter
             correctlySynced = correctlySynced +1;
             totalsteps = totalsteps + g;
+            
             % some output
             if(output)
-                disp(['correctly oscillating in ' num2str(g) ' time steps'])
+                disp(['correctly synced to all black (1) in ' num2str(g) ' time steps'])
             end
-            % finally break and go to next iteration
+            break;
+        elseif(stableConfig && sumCurrentState == 0 && sumInitialState < latticeSize/2)
+            % increment correctly synced and totalsteps counter
+            correctlySynced = correctlySynced +1;
+            totalsteps = totalsteps + g;
+            
+            % some output
+            if(output)
+                disp(['correctly synced to all white (0) in ' num2str(g) ' time steps'])
+            end
+            break;
+        elseif(stableConfig)
+            % wrong stable config reached do nothing in this case -
+            % just increase totalSteps counter and break
+            totalsteps = totalsteps + g;
+            % some output
+            if(output)
+                disp(['wrong stable config reached in ' num2str(g) ' time steps'])
+            end
             break;
         end
         
@@ -163,16 +161,29 @@ while(icIterator <= ICsNo)
         disp(['iteration complete: ' num2str(icIterator)])
     end
     
+    % OUTER LOOP PREDICTIVE CUT_OFF - START
+    %check if it converged a minimum no of times after half ICs
+    %by good enough we mean at least 5% converged in the first half
+    if(icIterator > ICsNo/2 && correctlySynced < ICsNo*5/100)
+        % assume it would converge the same number of times the next half
+        correctlySynced = correctlySynced*2;
+        % some output
+        if(output)
+            disp(['Interrupted because not promising after ' num2str(icIterator) ' IC evaluations'])
+        end
+        break;
+    end
+    % OUTER LOOP PREDICTIVE CUT_OFF - END
+    
     icIterator = icIterator +1;
 end
 
 fitness = - correctlySynced / ICsNo;
-
 avgtimesteps = totalsteps / ICsNo;
 
 %save to file if specified by input param:
 if(1)
-    fid = fopen(['globalSynchronization_Log_' datestr(datevec(now), 12) '.txt'],'a');
+    fid = fopen(['majorityClassification_Log_' datestr(datevec(now), 12) '.txt'],'a');
     %1 fitness
     fprintf(fid, '%f#', fitness);
     %2 rule
